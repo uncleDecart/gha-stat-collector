@@ -1,0 +1,83 @@
+openapi: 3.1.0
+info:
+  title: GitHub Actions stat collector
+  version: 1.0.0
+
+paths:
+  /ping:
+    get:
+      responses:
+        '200':
+          description: Pong
+  /api/v1/publish:
+    post:
+      security:
+        - bearerAuth:
+          - 'read:users'
+          - 'public'
+      requestBody:
+        description: Test
+        required: true
+        content:
+          applicatoin/json:
+            schema:
+              $ref: '#/components/schemas/ActionLogEntry'
+        responses:
+          '200':
+            description: Updated
+          '201':
+            description: Created
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt
+      description: 'note: non-oauth scopes are not defined at the securityScheme level'
+  schemas:
+    StepEntry:
+      title: Step log entry
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the step. Uses GITHUB_ACTION environment variable
+        exec_time:
+          type: uint64
+          description: Time took to execute step
+        successful:
+          type: bool
+          description: Was step successful
+    ActionEntry:
+      title: Action log entry 
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the action. Uses GITHUB_ACTION environment variable
+        start:
+          type: string
+          description: Start of the action
+        end:
+          type: string
+          description: End of the action
+        successful:
+          type: bool
+          description: Was action successful
+        arch:
+          type: string
+          description: Arch of runner
+          enum: [X86, X64, ARM, ARM64]
+        steps:
+          type: array
+          items:
+            - $ref: "#/components/schems/StepEntry"
+      required:
+        - name
+        - start
+        - end
+        - successful
+        - arch
+        - steps
+

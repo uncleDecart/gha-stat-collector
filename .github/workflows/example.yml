@@ -1,0 +1,45 @@
+name: Stat collection
+
+on: workflow_dispatch
+
+env:
+  LOG_FOLDER: gha-logs
+
+jobs:
+  simple_job:
+    name: Simple Job
+    steps:
+      - name: Create log folder
+        run: |
+          mkdir -p $LOG_FOLDER
+      - name: Extract start time
+        id: st 
+        run: |
+          echo "::set-output name=start_time::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+      - name: Log using `time`
+        run: |
+          ( time sleep 3) |& awk '{print $(NF-1)}' >> $LOG_FOLDER/step_${{ github.run_number }}.txt
+      - name: Log using `date` 
+        run: |
+          # if you need sub-second precision you can
+          # `date +%s.%N`
+          start=`date +%s`
+          sleep 3
+          end=`date +%s`
+          $((end-start)) >> $LOG_FOLDER/step_${{ github.run_number }}.txt
+      - name: Log in composite actions
+        run:
+          echo "TEST"
+      - name: Extract end time
+        id: et 
+        run: |
+          echo "::set-output name=end_time::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+      - name: Compose GHA-Stat server request
+        uses: ./.github/actions/compose-gha-stat
+        with:
+          path: ${{ env.LOG_FOLDER }}
+          name: ${{ github.action }} 
+          start: ${{ steps.st.outputs.start_time }}
+          end: ${{ steps.et.outputs.end_time }}
+          successful: ${{ success() }}
+          arch: ${{ runner.arch }}

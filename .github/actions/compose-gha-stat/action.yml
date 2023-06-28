@@ -1,0 +1,26 @@
+name: 'Compose request to GHA-stat server'
+description: 'Collect all logs and send them to gha-stat server'
+
+inputs:
+  path:
+    required: true
+    type: string
+  name:
+    required: true
+    type: string
+  start:
+    required: true
+    type: string
+  end:
+    required: true
+    type: string
+  succesful:
+    required: true
+    type: string
+  arch:
+    required: true
+    type: string
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

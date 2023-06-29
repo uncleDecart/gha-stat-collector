@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/uncleDecart/gha-stat-collector/controllers"
+	"github.com/uncleDecart/gha-stat-collector/pkg/controllers"
 	"gotest.tools/assert"
 )
 

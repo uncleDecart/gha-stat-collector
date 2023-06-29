@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/uncleDecart/gha-stat-collector/controllers"
-	"github.com/uncleDecart/gha-stat-collector/middlewares"
+	"github.com/uncleDecart/gha-stat-collector/pkg/controllers"
+	"github.com/uncleDecart/gha-stat-collector/pkg/middlewares"
 )
 
 func setupRouter() *gin.Engine {

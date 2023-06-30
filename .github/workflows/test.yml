@@ -24,7 +24,7 @@ jobs:
       - name: Run integration tests
         env:
           ACESS_TOKEN: qwerty
-          MONGO_URL: 'mongodb://mongo:27017'
+          MONGO_URL: 'mongodb://mongodb:27017'
           MONGO_USERNAME: root
           MONGO_PASSWORD: example
         run: |

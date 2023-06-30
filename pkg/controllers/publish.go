@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,17 +27,17 @@ func Publish(c *gin.Context) {
 
 	client, err := models.GetClient()
 	if err != nil {
-		c.JSON(htpp.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	defer client.Disconnect(context.TOOD())
+	defer client.Disconnect(context.TODO())
 
 	collection := client.Database("records").Collection("action-logs")
 	insertResult, err := collection.InsertOne(context.TODO(), entry)
 	if err != nil {
-		c.JSON(htpp.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": "Hello from controller!",
+		"data": fmt.Sprint("Inserted document ", insertResult.InsertedID),
 	})
 }

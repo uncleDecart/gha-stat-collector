@@ -19,3 +19,6 @@
 
 # Go workspace file
 go.work
+
+# folder created to store mongodb files from docker compose
+mongodb

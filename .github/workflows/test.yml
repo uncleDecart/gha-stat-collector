@@ -1,0 +1,31 @@
+name: Run tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.20
+    services:
+      mongodb:
+        image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run unit tests
+        run: |
+          go test ./pkg/token
+      - name: Run integration tests
+        env:
+          ACESS_TOKEN: qwerty
+          MONGO_URL: 'mongodb://mongo:27017'
+          MONGO_USERNAME: root
+          MONGO_PASSWORD: example
+        run: |
+          go test ./cmd/srv

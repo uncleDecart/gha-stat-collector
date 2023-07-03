@@ -9,7 +9,7 @@ paths:
       responses:
         '200':
           description: Pong
-  /api/v1/publish:
+  /api/v1/publish/timing:
     post:
       security:
         - bearerAuth:

@@ -29,7 +29,7 @@ func TestPingRoute(t *testing.T) {
 	assert.Equal(t, PingResponse{Message: "pong"}, got)
 }
 
-func TestPublishRoute(t *testing.T) {
+func TestPublishTimingRoute(t *testing.T) {
 	at := "qwerty"
 	os.Setenv("ACCESS_TOKEN", at)
 
@@ -46,7 +46,7 @@ func TestPublishRoute(t *testing.T) {
 	b, _ := json.Marshal(body)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/publish", bytes.NewReader(b))
+	req, _ := http.NewRequest("POST", "/api/v1/publish/timing", bytes.NewReader(b))
 	req.Header.Set("auth", at)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)

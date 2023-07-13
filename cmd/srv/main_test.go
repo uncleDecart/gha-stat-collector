@@ -41,6 +41,7 @@ func TestPublishTimingRoute(t *testing.T) {
 		End:         "2023-02-05",
 		ExecTime:    "42",
 		Successfull: true,
+		Arch:        "Arm",
 	}
 
 	b, _ := json.Marshal(body)

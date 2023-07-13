@@ -8,6 +8,7 @@ env:
 jobs:
   simple_job:
     name: Simple Job
+    runs-on: ubuntu-latest
     steps:
       - name: Create log folder
         run: |
@@ -44,5 +45,5 @@ jobs:
           name: ${{ github.action }} 
           start: ${{ steps.st.outputs.start_time }}
           end: ${{ steps.et.outputs.end_time }}
-          successful: ${{ success() }}
+          successful: ${{ steps.st.outputs.status }}
           arch: ${{ runner.arch }}

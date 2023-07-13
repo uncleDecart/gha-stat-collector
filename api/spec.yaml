@@ -36,20 +36,20 @@ components:
       bearerFormat: jwt
       description: 'note: non-oauth scopes are not defined at the securityScheme level'
   schemas:
-    StepEntry:
+    StepLogEntry:
       title: Step log entry
       type: object
       properties:
-        name:
+        id:
           type: string
-          description: Name of the step. Uses GITHUB_ACTION environment variable
+          description: Number of the step 
         exec_time:
           type: uint64
           description: Time took to execute step
         successful:
           type: bool
           description: Was step successful
-    ActionEntry:
+    ActionLogEntry:
       title: Action log entry 
       type: object
       properties:
@@ -79,5 +79,4 @@ components:
         - end
         - successful
         - arch
-        - steps
 

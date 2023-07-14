@@ -24,10 +24,10 @@ jobs:
         run: |
           # if you need sub-second precision you can
           # `date +%s.%N`
-          start=`date +%s`
+          export start=`date +%s`
           sleep 3
-          end=`date +%s`
-          $((end-start)) >> $LOG_FOLDER/step_${{ github.run_number }}.txt
+          export end=`date +%s`
+          echo $(($end - $start)) >> $LOG_FOLDER/step_${{ github.run_number }}.txt
       - name: Log in composite actions
         run:
           echo "TEST"

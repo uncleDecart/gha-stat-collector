@@ -36,13 +36,14 @@ def compose_log() -> dict:
     }
 
 def run():
-    body = compose_log()
     auth_header = {'auth' : os.environ['AUTH_TOKEN']}
+
     u = os.environ['GHA_URL'] + '/ping'
     r = requests.get(u)
     assert r.status_code == 200
 
-    u = os.environ['GHA_URL'] + '/api/v1/publish/timing'
+    body = compose_log()
+    u = 'https://ghastattest-uncledecart.b4a.run/api/v1/publish/timing'
     r = requests.post(u, json=body, headers=auth_header)
     print(r.url)
     print(r.status_code)

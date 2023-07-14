@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import requests
 
 def compose_log() -> dict:
     path = os.environ['INPUT_PATH']

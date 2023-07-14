@@ -43,7 +43,7 @@ def run():
     assert r.status_code == 200
 
     u = os.environ['GHA_URL'] + '/api/v1/publish/timing'
-    r = requests.post(u, data=body, headers=auth_header)
+    r = requests.post(u, json=body, headers=auth_header)
     print(r.url)
     print(r.status_code)
     print(r.content)

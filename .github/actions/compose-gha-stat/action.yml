@@ -14,7 +14,7 @@ inputs:
   end:
     required: true
     type: string
-  succesful:
+  successful:
     required: true
     type: string
   arch:

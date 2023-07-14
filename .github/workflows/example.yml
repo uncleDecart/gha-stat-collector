@@ -10,6 +10,9 @@ jobs:
     name: Simple Job
     runs-on: ubuntu-latest
     steps:
+      # This is needed for custom actions as well
+      - name: Checkout code 
+        uses: actions/checkout@v3
       - name: Create log folder
         run: |
           mkdir -p $LOG_FOLDER

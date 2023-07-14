@@ -39,6 +39,8 @@ def run():
     body = compose_log()
     auth_header = {'auth' : os.environ['AUTH_TOKEN']}
     r = requests.post(os.environ['GHA_URL'], data=body, headers=auth_header)
+    print(r.status_code)
+    print(r.content)
 
 if __name__ == '__main__':
     run()

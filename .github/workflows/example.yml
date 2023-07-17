@@ -8,32 +8,39 @@ env:
 jobs:
   simple_job:
     name: Simple Job
+    runs-on: ubuntu-latest
     steps:
+      # This is needed for custom actions as well
+      - name: Checkout code 
+        uses: actions/checkout@v3
       - name: Create log folder
         run: |
           mkdir -p $LOG_FOLDER
       - name: Extract start time
         id: st 
         run: |
-          echo "::set-output name=start_time::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          # Important: time format should be same as in Extract end time
+          # compose-gha-stat will expect start and end time to be in 
+          # %s format. Changing that will require changes server 
+          echo "::set-output name=start_time::$(date -u +'%s')"
       - name: Log using `time`
         run: |
-          ( time sleep 3) |& awk '{print $(NF-1)}' >> $LOG_FOLDER/step_${{ github.run_number }}.txt
+          ( time sleep 3) |& (awk '/real/' | awk '{print $(NF)}') >> $LOG_FOLDER/step_${{ github.run_number }}.txt
       - name: Log using `date` 
         run: |
           # if you need sub-second precision you can
           # `date +%s.%N`
-          start=`date +%s`
+          export start=`date +%s`
           sleep 3
-          end=`date +%s`
-          $((end-start)) >> $LOG_FOLDER/step_${{ github.run_number }}.txt
+          export end=`date +%s`
+          echo $(($end - $start)) >> $LOG_FOLDER/step_${{ github.run_number }}.txt
       - name: Log in composite actions
         run:
           echo "TEST"
       - name: Extract end time
         id: et 
         run: |
-          echo "::set-output name=end_time::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "::set-output name=end_time::$(date -u +'%s')"
       - name: Compose GHA-Stat server request
         uses: ./.github/actions/compose-gha-stat
         env:
@@ -44,5 +51,5 @@ jobs:
           name: ${{ github.action }} 
           start: ${{ steps.st.outputs.start_time }}
           end: ${{ steps.et.outputs.end_time }}
-          successful: ${{ success() }}
+          successful: ${{ steps.st.outputs.status }}
           arch: ${{ runner.arch }}

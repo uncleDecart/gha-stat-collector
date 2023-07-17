@@ -48,8 +48,8 @@ jobs:
           GHA_URL: ${{ secrets.GHA_URL }}
         with:
           path: ${{ env.LOG_FOLDER }}
-          name: ${{ github.action }} 
+          name: 'Simple Job'
           start: ${{ steps.st.outputs.start_time }}
           end: ${{ steps.et.outputs.end_time }}
-          successful: ${{ steps.st.outputs.status }}
+          successful: ${{ steps.et.outputs.status }}
           arch: ${{ runner.arch }}

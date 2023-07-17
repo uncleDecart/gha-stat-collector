@@ -39,7 +39,6 @@ func TestPublishTimingRoute(t *testing.T) {
 		Name:        "test-action",
 		Start:       "2023-02-01",
 		End:         "2023-02-05",
-		ExecTime:    "42",
 		Successfull: true,
 		Arch:        "Arm",
 	}

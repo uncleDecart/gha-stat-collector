@@ -42,6 +42,7 @@ def run():
 
     u = os.environ['GHA_URL'] + '/ping'
     r = requests.get(u)
+    print(f"ping status : {r.status_code}")
     assert r.status_code == 200
 
     body = compose_log()

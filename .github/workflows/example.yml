@@ -19,7 +19,10 @@ jobs:
       - name: Extract start time
         id: st 
         run: |
-          echo "::set-output name=start_time::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          # Important: time format should be same as in Extract end time
+          # compose-gha-stat will expect start and end time to be in 
+          # %s format. Changing that will require changes server 
+          echo "::set-output name=start_time::$(date -u +'%s')"
       - name: Log using `time`
         run: |
           ( time sleep 3) |& (awk '/real/' | awk '{print $(NF)}') >> $LOG_FOLDER/step_${{ github.run_number }}.txt
@@ -37,7 +40,7 @@ jobs:
       - name: Extract end time
         id: et 
         run: |
-          echo "::set-output name=end_time::$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "::set-output name=end_time::$(date -u +'%s')"
       - name: Compose GHA-Stat server request
         uses: ./.github/actions/compose-gha-stat
         env:

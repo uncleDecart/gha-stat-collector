@@ -35,11 +35,13 @@ func TestPublishTimingRoute(t *testing.T) {
 
 	router := setupRouter()
 
+	val := true
+
 	body := controllers.ActionLogEntry{
 		Name:        "test-action",
 		Start:       "2023-02-01",
 		End:         "2023-02-05",
-		Successfull: true,
+		Successfull: &val,
 		Arch:        "Arm",
 	}
 

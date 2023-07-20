@@ -42,14 +42,15 @@ def run():
 
     u = os.environ['GHA_URL'] + '/ping'
     r = requests.get(u)
+    print(f"ping status : {r.status_code}")
     assert r.status_code == 200
 
     body = compose_log()
-    u = 'https://ghastattest-uncledecart.b4a.run/api/v1/publish/timing'
+    u = os.environ['GHA_URL'] + '/api/v1/publish/timing'
+    u = re.sub(r"[\n\t\s]*", "", u)
     r = requests.post(u, json=body, headers=auth_header)
-    print(r.url)
-    print(r.status_code)
-    print(r.content)
+    print(f"publish status : {r.status_code}")
+    assert r.status_code == 200
 
 if __name__ == '__main__':
     run()

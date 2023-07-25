@@ -23,7 +23,7 @@ func Publish(c *gin.Context) {
 	}
 	defer client.Disconnect(context.TODO())
 
-	collection := client.Database("records").Collection("action-logs")
+	collection := client.Database(DB_NAME).Collection(COLLECTION_NAME)
 	insertResult, err := collection.InsertOne(context.TODO(), entry)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

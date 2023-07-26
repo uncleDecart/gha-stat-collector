@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -79,5 +81,9 @@ func TestGetTimingRoute(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/api/v1/timing", nil)
 	req.Header.Set("auth", at)
 	router.ServeHTTP(w, req)
+	fmt.Println(w.Body)
+	bodyBytes, _ := io.ReadAll(w.Body)
+	bodyString := string(bodyBytes)
+	fmt.Println(bodyString)
 	assert.Equal(t, 200, w.Code)
 }

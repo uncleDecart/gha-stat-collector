@@ -11,9 +11,10 @@ func setupRouter() *gin.Engine {
 
 	r.GET("/ping", controllers.Ping)
 
-	protected := r.Group("/api/v1/publish")
+	protected := r.Group("/api/v1")
 	protected.Use(middlewares.TokenAuthMiddleware())
 	protected.POST("timing", controllers.Publish)
+	protected.GET("timing", controllers.Read)
 
 	return r
 }

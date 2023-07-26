@@ -46,7 +46,7 @@ def run():
     assert r.status_code == 200
 
     body = compose_log()
-    u = os.environ['GHA_URL'] + '/api/v1/publish/timing'
+    u = os.environ['GHA_URL'] + '/api/v1/timing'
     u = re.sub(r"[\n\t\s]*", "", u)
     r = requests.post(u, json=body, headers=auth_header)
     print(f"publish status : {r.status_code}")

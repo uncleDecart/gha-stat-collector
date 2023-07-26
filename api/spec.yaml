@@ -9,7 +9,7 @@ paths:
       responses:
         '200':
           description: Pong
-  /api/v1/publish/timing:
+  /api/v1/timing:
     post:
       security:
         - bearerAuth:
@@ -27,6 +27,59 @@ paths:
             description: Updated
           '201':
             description: Created
+    get:
+      security:
+        - bearerAuth:
+          - 'read:users'
+          - 'public'
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: ActionLogEntry name. If empty provides all names 
+        - in: query
+          name: start
+          schema:
+            type: string
+          description: ActionLogEntry start time. If empty provides all starting dates.
+            Input in format [lt|lte|eq|gte|gt]<HH:MM:SS DD-MM-YYYY>
+        - in: query
+          name: end 
+          schema:
+            type: string
+          description: ActionLogEntry end time. If empty provides all ending dates.
+            Input in format [lt|lte|eq|gte|gt]<HH:MM:SS DD-MM-YYYY>
+        - in: query
+          name: successful
+          schema:
+            type: bool
+          description: If ActionLogEntry was successful. If empty provides all entries.
+        - in: query
+          name: arch
+          schema:
+            type: array
+            items: string
+          description: Arch of runners for specific ActionLogEntry. If empty provides all entries.
+        - in: query
+          name: perpage
+          schema:
+            type: integer
+          description: Number of object displayed per page. If not provided will use default value
+        - in: query
+          name: page
+          schema:
+            type: integer
+            description: Number of page to access. If not provided will show first page
+      responses:
+        '200':
+          description: List of ActionLogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActionLogEntrySearch'
 
 components:
   securitySchemes:
@@ -72,11 +125,30 @@ components:
         steps:
           type: array
           items:
-            - $ref: "#/components/schems/StepEntry"
+            - $ref: "#/components/schemas/StepEntry"
       required:
         - name
         - start
         - end
         - successful
         - arch
+    ActionLogEntrySearch:
+      title: ActionLogEntry objects returning from search
+      type: object
+      properties:
+        perPage:
+          type: integer
+          description: Number of ActionLogEntry objects per page
+        totalPages:
+          type: integer
+          description: Number of total pages
+        curPage:
+          type: integer
+          description: Current page number
+        data:
+          type: array
+          description: ActionLog Objects
+          items:
+            - $ref: "#/components/schemas/ActionLogEntry"
+
 

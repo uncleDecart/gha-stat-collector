@@ -9,23 +9,6 @@ import (
 	"github.com/uncleDecart/gha-stat-collector/pkg/models"
 )
 
-type StepLogEntry struct {
-	Id       uint64 `json:"id" binding:"required"`
-	ExecTime string `json:"exec_time" binding:"required"`
-	// why *bool: see https://github.com/gin-gonic/gin/issues/814
-	Successfull *bool `json:"successful" binding:"required"`
-}
-
-type ActionLogEntry struct {
-	Name  string `json:"name" binding:"required"`
-	Start string `json:"start" binding:"required"`
-	End   string `json:"end" binding:"required"`
-	// why *bool: see https://github.com/gin-gonic/gin/issues/814
-	Successfull *bool          `json:"successful" binding:"required"`
-	Arch        string         `json:"arch" binding:"required"`
-	Steps       []StepLogEntry `json:"steps"`
-}
-
 func Publish(c *gin.Context) {
 	var entry ActionLogEntry
 
@@ -40,7 +23,7 @@ func Publish(c *gin.Context) {
 	}
 	defer client.Disconnect(context.TODO())
 
-	collection := client.Database("records").Collection("action-logs")
+	collection := client.Database(DbName).Collection(CollectionName)
 	insertResult, err := collection.InsertOne(context.TODO(), entry)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

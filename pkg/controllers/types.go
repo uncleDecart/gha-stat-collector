@@ -19,3 +19,10 @@ type ActionLogEntry struct {
 	Arch        string         `json:"arch" binding:"required"`
 	Steps       []StepLogEntry `json:"steps"`
 }
+
+type ActionLogEntrySearch struct {
+	PerPage    int64            `json:"perPage"`
+	TotalPages int64            `json:"totalPages"`
+	CurPage    int64            `json:"curPage"`
+	Data       []ActionLogEntry `json:"data"`
+}

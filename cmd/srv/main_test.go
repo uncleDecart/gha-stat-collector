@@ -6,11 +6,28 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/uncleDecart/gha-stat-collector/pkg/controllers"
 	"gotest.tools/assert"
 )
+
+func TestEnvVariables(t *testing.T) {
+	// All variables from .env file must be present
+	_, present := os.LookupEnv("ACCESS_TOKEN")
+	assert.Equal(t, true, present)
+
+	_, present = os.LookupEnv("MONGO_USERNAME")
+	assert.Equal(t, true, present)
+
+	_, present = os.LookupEnv("MONGO_PASSWORD")
+	assert.Equal(t, true, present)
+
+	_, present = os.LookupEnv("MONGO_URL")
+	assert.Equal(t, true, present)
+}
 
 func TestPingRoute(t *testing.T) {
 	router := setupRouter()
@@ -30,8 +47,7 @@ func TestPingRoute(t *testing.T) {
 }
 
 func TestPostTimingRoute(t *testing.T) {
-	at := "qwerty"
-	os.Setenv("ACCESS_TOKEN", at)
+	at := os.Getenv("ACCESS_TOKEN")
 
 	router := setupRouter()
 
@@ -39,8 +55,8 @@ func TestPostTimingRoute(t *testing.T) {
 
 	body := controllers.ActionLogEntry{
 		Name:        "test-action",
-		Start:       "2023-02-01",
-		End:         "2023-02-05",
+		Start:       strconv.FormatInt(time.Now().Unix(), 10),
+		End:         strconv.FormatInt(time.Now().Unix(), 10),
 		Successfull: &val,
 		Arch:        "Arm",
 	}
@@ -49,6 +65,18 @@ func TestPostTimingRoute(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/v1/timing", bytes.NewReader(b))
+	req.Header.Set("auth", at)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+}
+
+func TestGetTimingRoute(t *testing.T) {
+	at := os.Getenv("ACCESS_TOKEN")
+
+	router := setupRouter()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/v1/timing", nil)
 	req.Header.Set("auth", at)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)

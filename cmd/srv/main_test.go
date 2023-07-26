@@ -19,16 +19,16 @@ import (
 func TestEnvVariables(t *testing.T) {
 	// All variables from .env file must be present
 	_, present := os.LookupEnv("ACCESS_TOKEN")
-	assert.Equal(t, true, present)
+	assert.Equal(t, true, present, "ACCESS_TOKEN variable should be present")
 
 	_, present = os.LookupEnv("MONGO_USERNAME")
-	assert.Equal(t, true, present)
+	assert.Equal(t, true, present, "MONGO_USERNAME variable should be present")
 
 	_, present = os.LookupEnv("MONGO_PASSWORD")
-	assert.Equal(t, true, present)
+	assert.Equal(t, true, present, "MONGO_PASSWORD variable should be present")
 
 	_, present = os.LookupEnv("MONGO_URL")
-	assert.Equal(t, true, present)
+	assert.Equal(t, true, present, "MONGO_URL variable should be present")
 }
 
 func TestPingRoute(t *testing.T) {

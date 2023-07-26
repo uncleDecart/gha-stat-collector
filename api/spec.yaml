@@ -9,7 +9,7 @@ paths:
       responses:
         '200':
           description: Pong
-  /api/v1/publish/timing:
+  /api/v1/timing:
     post:
       security:
         - bearerAuth:
@@ -43,13 +43,13 @@ paths:
           schema:
             type: string
           description: ActionLogEntry start time. If empty provides all starting dates.
-            Input in format [l|le|e|ge|g]<HH:MM:SS DD:MM:YYYY>
+            Input in format [lt|lte|eq|gte|gt]<HH:MM:SS DD-MM-YYYY>
         - in: query
           name: end 
           schema:
             type: string
           description: ActionLogEntry end time. If empty provides all ending dates.
-            Input in format [l|le|e|ge|g]<HH:MM:SS DD:MM:YYYY>
+            Input in format [lt|lte|eq|gte|gt]<HH:MM:SS DD-MM-YYYY>
         - in: query
           name: successful
           schema:

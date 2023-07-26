@@ -1,7 +1,7 @@
 package controllers
 
-const DB_NAME = "records"
-const COLLECTION_NAME = "action-logs"
+const DbName = "records"
+const CollectionName = "action-logs"
 
 type StepLogEntry struct {
 	Id       uint64 `json:"id" binding:"required"`

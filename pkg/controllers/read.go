@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -64,7 +65,13 @@ func composeFilterFromQuery(c *gin.Context) bson.M {
 	}
 
 	if successful, ok := c.GetQuery("successful"); ok {
-		filter["successful"] = successful
+		// MongoDb acts strange with boolean filters
+		// see https://stackoverflow.com/questions/18837486/query-for-boolean-field-as-not-true-e-g-either-false-or-non-existent
+		if strings.ToLower(successful) == "true" {
+			filter["successful"] = bson.M{"$ne": false}
+		} else {
+			filter["successful"] = bson.M{"$eq": false}
+		}
 	}
 
 	if arch, ok := c.GetQuery("arch"); ok {

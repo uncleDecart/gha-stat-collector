@@ -25,21 +25,22 @@ type dateQueryParam struct {
 
 func parseDateQueryParam(q string) (dateQueryParam, error) {
 	time.Now()
-	r := regexp.MustCompile("(lt|lte|eq|gte|gt)(\\d{2}:\\d{2}:\\d{2}) \\d{2}-\\d{2}-\\d{4})")
+	r := regexp.MustCompile("(lt|lte|eq|gte|gt)((\\d{7,}))")
 	if !r.MatchString(q) {
 		return dateQueryParam{}, fmt.Errorf("Query parameter %s has invalid format", q)
 	}
 
 	match := r.FindStringSubmatch(q)
-	date, err := time.Parse("14:32:59 15-08-2004", match[2])
+
+	timestamp, err := strconv.ParseInt(match[2], 10, 64)
 	if err != nil {
-		return dateQueryParam{}, fmt.Errorf("Parsing timestamp %s failed", match[2])
+		return dateQueryParam{}, err
 	}
 
-	return dateQueryParam{Eq: match[1], Date: date}, nil
+	return dateQueryParam{Eq: match[1], Date: time.Unix(timestamp, 0)}, nil
 }
 
-func composeFilterFromQuery(c *gin.Context) bson.M {
+func ComposeFilterFromQuery(c *gin.Context) bson.M {
 	filter := bson.M{}
 
 	if name, ok := c.GetQuery("name"); ok {
@@ -82,13 +83,14 @@ func composeFilterFromQuery(c *gin.Context) bson.M {
 }
 
 func Read(c *gin.Context) {
-	filter := composeFilterFromQuery(c)
+	filter := ComposeFilterFromQuery(c)
 
 	perPage := int64(PerPageDefault)
 	if pp, ok := c.GetQuery("perpage"); ok {
 		intPp, err := strconv.ParseInt(pp, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 		perPage = intPp
 	}
@@ -97,6 +99,7 @@ func Read(c *gin.Context) {
 		intCp, err := strconv.ParseInt(cp, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 		curPage = intCp
 	}
@@ -107,6 +110,7 @@ func Read(c *gin.Context) {
 	client, err := models.GetClient()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	defer client.Disconnect(context.TODO())
 	collection := client.Database(DbName).Collection(CollectionName)
@@ -114,6 +118,7 @@ func Read(c *gin.Context) {
 	cursor, err := collection.Find(context.TODO(), filter, options)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	defer cursor.Close(context.TODO())
 
@@ -123,6 +128,7 @@ func Read(c *gin.Context) {
 		var el ActionLogEntry
 		if err := cursor.Decode(&el); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 		data = append(data, el)
 	}
@@ -130,6 +136,7 @@ func Read(c *gin.Context) {
 	totalDocuments, err := collection.CountDocuments(context.TODO(), filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	response := ActionLogEntrySearch{

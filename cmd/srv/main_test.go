@@ -81,9 +81,110 @@ func TestGetTimingRoute(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/api/v1/timing", nil)
 	req.Header.Set("auth", at)
 	router.ServeHTTP(w, req)
-	fmt.Println(w.Body)
-	bodyBytes, _ := io.ReadAll(w.Body)
-	bodyString := string(bodyBytes)
-	fmt.Println(bodyString)
 	assert.Equal(t, 200, w.Code)
+}
+
+func TestGetTimingRouteFilter(t *testing.T) {
+	at := os.Getenv("ACCESS_TOKEN")
+	router := setupRouter()
+	w := httptest.NewRecorder()
+
+	valTrue := true
+	valFalse := false
+
+	action1 := controllers.ActionLogEntry{
+		Name:        "testfilternameaction1",
+		Start:       strconv.FormatInt(time.Now().Unix(), 10),
+		End:         strconv.FormatInt(time.Now().Unix(), 10),
+		Successfull: &valTrue,
+		Arch:        "Arm",
+	}
+	action2 := controllers.ActionLogEntry{
+		Name:        "testfilternameaction2",
+		Start:       strconv.FormatInt(time.Now().Unix(), 10),
+		End:         strconv.FormatInt(time.Now().Unix(), 10),
+		Successfull: &valFalse,
+		Arch:        "Arm",
+	}
+
+	actions := []controllers.ActionLogEntry{action1, action2}
+
+	for _, actionToSend := range actions {
+		b, _ := json.Marshal(actionToSend)
+
+		req, _ := http.NewRequest("POST", "/api/v1/timing", bytes.NewReader(b))
+		req.Header.Set("auth", at)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, 200, w.Code)
+		// Skip responses from insert requests
+		io.ReadAll(w.Body) // response body is []byte
+	}
+
+	// Test name filtering
+	url := fmt.Sprintf("/api/v1/timing?name=%s", action1.Name)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("auth", at)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	body, err := io.ReadAll(w.Body) // response body is []byte
+	assert.Equal(t, nil, err, "Failed to read response body")
+	bodyString := string(body)
+	fmt.Println(bodyString)
+	var result controllers.ActionLogEntrySearch
+	err = json.Unmarshal(body, &result)
+	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
+	expected := []controllers.ActionLogEntry{action1}
+	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
+
+	// Test start filtering
+	url = fmt.Sprintf("/api/v1/timing?start=eq%s", action2.Start)
+	req, _ = http.NewRequest("GET", url, nil)
+	req.Header.Set("auth", at)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	body, err = io.ReadAll(w.Body) // response body is []byte
+	assert.Equal(t, nil, err, "Failed to read response body")
+	err = json.Unmarshal(body, &result)
+	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
+	expected = []controllers.ActionLogEntry{action2}
+	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
+
+	// Test end filtering
+	url = fmt.Sprintf("/api/v1/timing?start=leq%s", action1.Start)
+	req, _ = http.NewRequest("GET", url, nil)
+	req.Header.Set("auth", at)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	body, err = io.ReadAll(w.Body) // response body is []byte
+	assert.Equal(t, nil, err, "Failed to read response body")
+	err = json.Unmarshal(body, &result)
+	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
+	expected = []controllers.ActionLogEntry{action1}
+	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
+
+	// Test successful filtering; checking false
+	url = fmt.Sprintf("/api/v1/timing?successful=%s", action2.Start)
+	req, _ = http.NewRequest("GET", url, nil)
+	req.Header.Set("auth", at)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	body, err = io.ReadAll(w.Body) // response body is []byte
+	assert.Equal(t, nil, err, "Failed to read response body")
+	err = json.Unmarshal(body, &result)
+	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
+	expected = []controllers.ActionLogEntry{action2}
+	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
+
+	// Test arch filtering
+	url = fmt.Sprintf("/api/v1/timing?arch=%s", action2.Arch)
+	req, _ = http.NewRequest("GET", url, nil)
+	req.Header.Set("auth", at)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	body, err = io.ReadAll(w.Body) // response body is []byte
+	assert.Equal(t, nil, err, "Failed to read response body")
+	err = json.Unmarshal(body, &result)
+	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
+	expected = []controllers.ActionLogEntry{action1, action2}
+	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
 }

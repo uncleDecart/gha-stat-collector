@@ -21,6 +21,7 @@ jobs:
       - name: Run unit tests
         run: |
           go test ./pkg/token
+          go test ./pkg/controllers
       - name: Run integration tests
         env:
           ACCESS_TOKEN: 'qwerty'

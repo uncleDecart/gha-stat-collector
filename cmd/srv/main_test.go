@@ -53,14 +53,12 @@ func TestPostTimingRoute(t *testing.T) {
 
 	router := setupRouter()
 
-	val := true
-
 	body := controllers.ActionLogEntry{
-		Name:        "test-action",
-		Start:       strconv.FormatInt(time.Now().Unix(), 10),
-		End:         strconv.FormatInt(time.Now().Unix(), 10),
-		Successfull: &val,
-		Arch:        "Arm",
+		Name:    "test-action",
+		Start:   strconv.FormatInt(time.Now().Unix(), 10),
+		End:     strconv.FormatInt(time.Now().Unix(), 10),
+		Outcome: "success",
+		Arch:    "Arm",
 	}
 
 	b, _ := json.Marshal(body)
@@ -85,26 +83,24 @@ func TestGetTimingRoute(t *testing.T) {
 }
 
 func TestGetTimingRouteFilter(t *testing.T) {
+	// Warning: keep in mind that previous entries are not deleted
 	at := os.Getenv("ACCESS_TOKEN")
 	router := setupRouter()
 	w := httptest.NewRecorder()
 
-	valTrue := true
-	valFalse := false
-
 	action1 := controllers.ActionLogEntry{
-		Name:        "testfilternameaction1",
-		Start:       strconv.FormatInt(time.Now().Unix(), 10),
-		End:         strconv.FormatInt(time.Now().Unix(), 10),
-		Successfull: &valTrue,
-		Arch:        "Arm",
+		Name:    "testfilternameaction1",
+		Start:   strconv.FormatInt(time.Now().Unix(), 10),
+		End:     strconv.FormatInt(time.Now().Unix()+10, 10),
+		Outcome: "success",
+		Arch:    "Arm",
 	}
 	action2 := controllers.ActionLogEntry{
-		Name:        "testfilternameaction2",
-		Start:       strconv.FormatInt(time.Now().Unix(), 10),
-		End:         strconv.FormatInt(time.Now().Unix(), 10),
-		Successfull: &valFalse,
-		Arch:        "Arm",
+		Name:    "testfilternameaction2",
+		Start:   strconv.FormatInt(time.Now().Unix()+20, 10),
+		End:     strconv.FormatInt(time.Now().Unix()+30, 10),
+		Outcome: "failure",
+		Arch:    "x86_64",
 	}
 
 	actions := []controllers.ActionLogEntry{action1, action2}
@@ -128,8 +124,6 @@ func TestGetTimingRouteFilter(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 	body, err := io.ReadAll(w.Body) // response body is []byte
 	assert.Equal(t, nil, err, "Failed to read response body")
-	bodyString := string(body)
-	fmt.Println(bodyString)
 	var result controllers.ActionLogEntrySearch
 	err = json.Unmarshal(body, &result)
 	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
@@ -150,25 +144,27 @@ func TestGetTimingRouteFilter(t *testing.T) {
 	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
 
 	// Test end filtering
-	url = fmt.Sprintf("/api/v1/timing?start=leq%s", action1.Start)
+	url = fmt.Sprintf("/api/v1/timing?end=leq%s", action1.End)
 	req, _ = http.NewRequest("GET", url, nil)
 	req.Header.Set("auth", at)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
-	body, err = io.ReadAll(w.Body) // response body is []byte
+	body, err = io.ReadAll(w.Body)
 	assert.Equal(t, nil, err, "Failed to read response body")
 	err = json.Unmarshal(body, &result)
 	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
 	expected = []controllers.ActionLogEntry{action1}
 	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
 
-	// Test successful filtering; checking false
-	url = fmt.Sprintf("/api/v1/timing?successful=%s", action2.Start)
+	// Test outcome filtering; checking false
+	url = fmt.Sprintf("/api/v1/timing?outcome=%s", action2.Outcome)
 	req, _ = http.NewRequest("GET", url, nil)
 	req.Header.Set("auth", at)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
-	body, err = io.ReadAll(w.Body) // response body is []byte
+	body, err = io.ReadAll(w.Body)
+	bodyString := string(body)
+	fmt.Println(bodyString)
 	assert.Equal(t, nil, err, "Failed to read response body")
 	err = json.Unmarshal(body, &result)
 	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
@@ -185,6 +181,6 @@ func TestGetTimingRouteFilter(t *testing.T) {
 	assert.Equal(t, nil, err, "Failed to read response body")
 	err = json.Unmarshal(body, &result)
 	assert.Equal(t, nil, err, "Failed to unmarshal response body to struct")
-	expected = []controllers.ActionLogEntry{action1, action2}
+	expected = []controllers.ActionLogEntry{action2}
 	assert.Equal(t, true, controllers.CompareActionLogEntrySlice(expected, result.Data))
 }

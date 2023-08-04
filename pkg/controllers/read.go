@@ -53,7 +53,7 @@ func ComposeFilterFromQuery(c *gin.Context) bson.M {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		// Since API parameters are compatible with MongoDb which we are using
-		filter["start"] = bson.M{"$" + dqp.Eq: dqp.Date.Unix()}
+		filter["start"] = bson.M{"$" + dqp.Eq: strconv.FormatInt(dqp.Date.Unix(), 10)}
 	}
 
 	if end, ok := c.GetQuery("end"); ok {
@@ -62,17 +62,11 @@ func ComposeFilterFromQuery(c *gin.Context) bson.M {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		// Since API parameters are compatible with MongoDb which we are using
-		filter["end"] = bson.M{"$" + dqp.Eq: dqp.Date.Unix()}
+		filter["end"] = bson.M{"$" + dqp.Eq: strconv.FormatInt(dqp.Date.Unix(), 10)}
 	}
 
-	if successful, ok := c.GetQuery("successful"); ok {
-		// MongoDb acts strange with boolean filters
-		// see https://stackoverflow.com/questions/18837486/query-for-boolean-field-as-not-true-e-g-either-false-or-non-existent
-		if strings.ToLower(successful) == "true" {
-			filter["successful"] = bson.M{"$ne": false}
-		} else {
-			filter["successful"] = bson.M{"$eq": false}
-		}
+	if outcome, ok := c.GetQuery("outcome"); ok {
+		filter["outcome"] = strings.ToLower(outcome)
 	}
 
 	if arch, ok := c.GetQuery("arch"); ok {

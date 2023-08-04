@@ -16,23 +16,23 @@ def compose_log() -> dict:
 
         with open(os.path.join(path, file_name), 'r') as f:
             time_result, successful = f.read().split()
-            successful = successful.lower() == 'true'
+            outcome = 'success' if successful.lower() == 'true' else 'failure'
             r = re.match(r'(\d*)m(\d*.\d*)s', time_result)
             time_result = int(r[1])*60 + float(r[2])
 
         d = {
             "id" : step_number,
             "exec_time": str(time_result),
-            "successful": successful,
+            "outcome": outcome,
         }
 
         steps.append(d)
-
+    outcome = 'success' if os.environ['INPUT_SUCCESSFUL'].lower() == 'true' else 'failure'
     return {
         "name": os.environ['INPUT_NAME'],
         "start": os.environ['INPUT_START'],
         "end": os.environ['INPUT_END'],
-        "successful": os.environ['INPUT_SUCCESSFUL'].lower() == 'true',
+        "outcome": outcome,
         "arch": os.environ['INPUT_ARCH'],
         "steps": steps
     }

@@ -6,18 +6,16 @@ const CollectionName = "action-logs"
 type StepLogEntry struct {
 	Id       uint64 `json:"id" binding:"required"`
 	ExecTime string `json:"exec_time" binding:"required"`
-	// why *bool: see https://github.com/gin-gonic/gin/issues/814
-	Successfull *bool `json:"successful" binding:"required"`
+	Outcome  string `json:"outcome" binding:"required"`
 }
 
 type ActionLogEntry struct {
-	Name  string `json:"name" binding:"required"`
-	Start string `json:"start" binding:"required"`
-	End   string `json:"end" binding:"required"`
-	// why *bool: see https://github.com/gin-gonic/gin/issues/814
-	Successfull *bool          `json:"successful" binding:"required"`
-	Arch        string         `json:"arch" binding:"required"`
-	Steps       []StepLogEntry `json:"steps"`
+	Name    string         `json:"name" binding:"required"`
+	Start   string         `json:"start" binding:"required"`
+	End     string         `json:"end" binding:"required"`
+	Outcome string         `json:"outcome" binding:"required"`
+	Arch    string         `json:"arch" binding:"required"`
+	Steps   []StepLogEntry `json:"steps"`
 }
 
 type ActionLogEntrySearch struct {
@@ -30,7 +28,7 @@ type ActionLogEntrySearch struct {
 func (lhs StepLogEntry) Compare(rhs StepLogEntry) bool {
 	return lhs.Id == rhs.Id &&
 		lhs.ExecTime == rhs.ExecTime &&
-		*lhs.Successfull == *rhs.Successfull
+		lhs.Outcome == rhs.Outcome
 }
 
 func CompareStepLogEntrySlice(lhs, rhs []StepLogEntry) bool {
@@ -56,7 +54,7 @@ func (lhs ActionLogEntry) Compare(rhs ActionLogEntry) bool {
 	if lhs.End != rhs.End {
 		return false
 	}
-	if *lhs.Successfull != *rhs.Successfull {
+	if lhs.Outcome != rhs.Outcome {
 		return false
 	}
 	if lhs.Arch != rhs.Arch {

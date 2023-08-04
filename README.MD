@@ -17,5 +17,5 @@ There's a quick way to deploy this application if you don't have any public IP a
 1) Fork this repository
 2) Deploy free instance of mongodb using mongodb [atlass](https://www.mongodb.com/atlas). Don't forget to allow all connections for you mongodb database!
 3) Deploy server using Dockerfile via [Back4App](https://www.back4app.com/). Don't forget to setup your environment variables with your mongodb atlass url link and `.env` file
-4) In your fork repository setup secrets `AUTH_TOKEN` and `GHA_URL`
+4) In your fork repository setup secrets `AUTH_TOKEN` and `GHA_URL` (there's `token-generator` utility under `cmd` which can generate `AUTH_TOKEN` for you)
 5) Run `example.yml` to see that everything is working fine
